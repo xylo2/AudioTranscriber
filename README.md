@@ -32,12 +32,12 @@ Distribuée sous licence **GNU General Public License v3.0 (GPL-3.0-or-later)**.
 `audio_transcriber` est conçue comme une brique autonome réutilisable dans
 deux applications principales aux contraintes complémentaires :
 
-- **[AnonVault / Anonymizer](https://github.com)** : outil
+- **[AnonVault / Anonymizer](https://github.com/xylo2/Anonymizer)** : outil
   d'anonymisation en masse de pièces confidentielles (Windows & Linux). La
   librairie y convertit des enregistrements vocaux et projets Audacity en texte
   structuré (`to_timestamped_text()`, `to_dict()`) avant la passe de détection
   et de remplacement des données personnelles.
-- **[MediaReader](https://github.com)** : lecteur multimédia
+- **[MediaReader](https://github.com/xylo2/MediaReader)** : lecteur multimédia
   multiplateforme développé en **Python Flet 1.0** pour **Android et Windows**.
   La librairie y génère des sous-titres synchronisés (`to_lrc_text()`) et des
   transcriptions consultables directement sur l'appareil.

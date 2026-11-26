@@ -27,8 +27,28 @@ class AudioTranscriber:
             max_speakers=self.config.max_speakers,
             similarity_threshold=self.config.similarity_threshold,
             speaker_prefix=self.config.speaker_prefix,
+            profiles_path=self.config.profiles_path,
         )
 
+    def _sync_diarizer_config(self) -> SpeakerDiarizer:
+        """Synchronise le diarizer si la configuration a évolué."""
+        self._diarizer.max_speakers = max(1, int(self.config.max_speakers))
+        self._diarizer.similarity_threshold = float(self.config.similarity_threshold)
+        self._diarizer.speaker_prefix = (
+            self.config.speaker_prefix.strip() or "Interlocuteur"
+        )
+        new_path: str = self.config.profiles_path.strip()
+        if new_path != self._diarizer.profiles_path:
+            self._diarizer.profiles_path = new_path
+            self._diarizer.clear_profiles()
+            if new_path and os.path.isfile(new_path):
+                self._diarizer.load_profiles(new_path)
+        return self._diarizer
+
+    @property
+    def diarizer(self) -> SpeakerDiarizer:
+        """Retourne l'instance de diarisation (gestion des profils vocaux)."""
+        return self._sync_diarizer_config()
     @property
     def model(self) -> Any:
         """Charge le modèle faster-whisper à la demande (cache local prioritaire)."""
@@ -53,6 +73,7 @@ class AudioTranscriber:
                     local_files_only=False,
                 )
         return self._model
+
     def transcribe(
         self,
         file_path: str,
@@ -88,7 +109,7 @@ class AudioTranscriber:
 
         speakers: List[str] = []
         if segments and self.config.enable_diarization:
-            speakers = self._diarizer.assign_speakers(file_path, segments)
+            speakers = self.diarizer.assign_speakers(file_path, segments)
 
         detected_lang: str = str(getattr(info, "language", "") or "")
         total_dur: float = float(

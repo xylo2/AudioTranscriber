@@ -24,6 +24,7 @@ class TranscriberConfig:
     speaker_prefix: str = "Interlocuteur"
     similarity_threshold: float = 0.82
     cache_dir: str = ""
+    profiles_path: str = ""
 
     def resolve_cache_dir(self) -> str:
         """Retourne et crée le répertoire de cache local des modèles Whisper."""

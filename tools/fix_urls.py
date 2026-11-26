@@ -52,6 +52,13 @@ def _repair_content(text: str) -> Tuple[str, int]:
     bare_github = re.compile(re.escape(scheme) + r"://www\." + r"github\.com\b")
     text, n3 = bare_github.subn(github_base, text)
     total_fixes += n3
+
+    ci_url: str = github_base + "/xylo2/AudioTranscriber/actions/workflows/ci.yml"
+    broken_badge: str = f"[![Tests unitaires et couverture]({github_base})]({github_base})"
+    fixed_badge: str = f"[![Tests unitaires et couverture]({ci_url}/badge.svg)]({ci_url})"
+    if broken_badge in text:
+        text = text.replace(broken_badge, fixed_badge)
+        total_fixes += 1
     return text, total_fixes
 
 

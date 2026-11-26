@@ -1,5 +1,7 @@
 # audio_transcriber
 
+[![Tests unitaires et couverture](https://github.com/xylo2/AudioTranscriber/actions/workflows/ci.yml/badge.svg)](https://github.com/xylo2/AudioTranscriber/actions/workflows/ci.yml)
+
 Librairie Python **100 % locale et hors-ligne** de transcription vocale
 (`faster-whisper`) et de distinction multi-interlocuteurs (diarisation légère
 stéréo et acoustique spectrale sous NumPy).

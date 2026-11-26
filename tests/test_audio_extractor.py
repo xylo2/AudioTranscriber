@@ -23,6 +23,7 @@ if SRC_DIR not in sys.path:
 
 from audio_transcriber import (
     AudioTranscriber,
+    __version__,
     extract_audio,
     infer_audio_extension,
 )
@@ -34,7 +35,7 @@ from audio_transcriber.audio_extractor import (
 
 
 class TestAudioExtractor(unittest.TestCase):
-    """Vérifie la déduction d'extension, le remux, le repli WAV et les erreurs."""
+    """Vérifie la version, la déduction d'extension, le remux et le repli WAV."""
 
     def setUp(self) -> None:
         self.tmp_dir: str = tempfile.mkdtemp(prefix="test_at_extract_")
@@ -42,7 +43,8 @@ class TestAudioExtractor(unittest.TestCase):
     def tearDown(self) -> None:
         shutil.rmtree(self.tmp_dir, ignore_errors=True)
 
-    def test_infer_audio_extension(self) -> None:
+    def test_package_version_and_infer_audio_extension(self) -> None:
+        self.assertEqual(__version__, "0.2.0")
         self.assertEqual(infer_audio_extension("rush.mp4", codec_name="aac"), ".m4a")
         self.assertEqual(infer_audio_extension("clip.webm", codec_name="opus"), ".opus")
         self.assertEqual(infer_audio_extension("film.mkv", codec_name="ac3"), ".wav")

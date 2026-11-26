@@ -1,10 +1,29 @@
+# Outils locaux
 .watch_clipboard/
-.coverage
-.coverage.*
-__pycache__/
-*.py[cod]
-*.egg-info/
-dist/
-build/
+
+# Environnements virtuels & caches Python
 .venv/
 venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Artefacts de build & packaging
+build/
+dist/
+*.egg-info/
+*.whl
+*.tar.gz
+
+# Tests & couverture
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Fichiers locaux, IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.tmp

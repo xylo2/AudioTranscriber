@@ -30,7 +30,7 @@ Respecte **impérativement** ces règles afin que `watch_clipboard` assemble les
 
 * **Triples backticks** : construis-les via `chr(96) * 3` en Python plutôt qu'en littéral.
 * **URLs et sous-domaines** : reconstruis dynamiquement les URLs en Python (`_u("sub", "domain.tld")`).
-* **Crochets d'indexation** : préfère le déballage (`a, b = pair`) ou `next(iter(seq))` aux index `[0]`, `[1]`.
+* **Crochets d'indexation & Markdown** : préfère le déballage (`a, b = pair`) ou `next(iter(seq))` aux index `[0]`, `[1]`, et écris `## Version x.y.z` sans crochets dans `CHANGELOG.md`.
 * **Confidentialité & Licence** : utilise uniquement des données abstraites (`Interlocuteur_1`, `test.wav`) et applique l'en-tête **GNU GPL v3** sur chaque fichier source.
 
 ---

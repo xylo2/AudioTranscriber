@@ -73,7 +73,7 @@ Pour générer un paquet autonome (`.whl` et `.tar.gz`) dans le dossier `dist/` 
 Ensuite, depuis le `venv` de **n'importe quel autre projet** (par exemple
 AnonVault ou MediaReader), installez le fichier `.whl` généré :
 
-    pip install C:\git\AudioTranscriber\dist\audio_transcriber-0.1.0-py3-none-any.whl
+    pip install --upgrade C:\git\AudioTranscriber\dist\audio_transcriber-0.2.0-py3-none-any.whl
 
 ---
 

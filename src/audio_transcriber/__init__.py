@@ -5,6 +5,12 @@ Paquet principal de transcription audio et diarisation multi-interlocuteurs.
 License: GNU General Public License v3.0 (GPL-3.0-or-later)
 """
 
+from audio_transcriber.audio_extractor import (
+    CODEC_TO_EXTENSION,
+    VIDEO_EXT_TO_AUDIO_EXT,
+    extract_audio,
+    infer_audio_extension,
+)
 from audio_transcriber.audio_loader import (
     SUPPORTED_AUDIO_EXTENSIONS,
     SUPPORTED_EXTENSIONS,
@@ -18,6 +24,7 @@ from audio_transcriber.models import TranscriptSegment, TranscriptionResult
 
 __all__ = [
     "AudioTranscriber",
+    "CODEC_TO_EXTENSION",
     "SpeakerDiarizer",
     "SUPPORTED_AUDIO_EXTENSIONS",
     "SUPPORTED_EXTENSIONS",
@@ -25,5 +32,8 @@ __all__ = [
     "TranscriberConfig",
     "TranscriptSegment",
     "TranscriptionResult",
+    "VIDEO_EXT_TO_AUDIO_EXT",
+    "extract_audio",
+    "infer_audio_extension",
     "is_supported_media",
 ]

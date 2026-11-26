@@ -13,6 +13,9 @@ Distribuée sous licence **GNU General Public License v3.0 (GPL-3.0-or-later)**.
 - **Transcrire** des fichiers audio ou vidéo (`WAV`, `MP3`, `OGG`, `FLAC`,
   `M4A`, `MP4`, `MOV`, `MTS`, ainsi que les projets Audacity `.aup3`) sans
   cloud externe.
+- **Extraire la piste audio d'une vidéo** (`extract_audio()`) avec déduction
+  automatique du format de sortie (remux natif `.m4a`, `.opus`, `.mp3`,
+  `.flac`, `.ogg`, `.wma` ou repli `.wav`).
 - **Distinguer automatiquement les interlocuteurs** (`Interlocuteur_1`,
   `Interlocuteur_2`, etc.) et **conserver leurs profils vocaux** d'un fichier à
   l'autre via un fichier JSON local (`profiles_path`).
@@ -74,26 +77,39 @@ AnonVault ou MediaReader), installez le fichier `.whl` généré :
 
 ---
 
-## Points d'entrée principaux
+## Points d'entrée & exemples rapides
 
-- `AudioTranscriber(config=None, model_override=None)` : point d'entrée
-  principal (`transcribe(file_path, stop_event=None, on_segment=None)`).
-- `TranscriberConfig(...)` : paramètres du modèle (`model_size`, `device`,
-  `compute_type`, `language`, `vad_filter`), de la diarisation
-  (`enable_diarization`, `max_speakers`, `speaker_prefix`,
-  `similarity_threshold`, `profiles_path`) et du cache local (`cache_dir`).
-- `SpeakerDiarizer` : module autonome d'attribution et de persistance des voix
+- `AudioTranscriber(config=None, model_override=None)` : transcription,
+  diarisation persistante, suivi temps réel et arrêt coopératif :
+
+      import threading
+      from audio_transcriber import AudioTranscriber, TranscriberConfig
+
+      cfg = TranscriberConfig(model_size="base", profiles_path="voices.json")
+      engine = AudioTranscriber(config=cfg)
+      stop_evt = threading.Event()
+
+      res = engine.transcribe("appel.wav", on_segment=print, stop_event=stop_evt)
+      engine.diarizer.rename_speaker("Interlocuteur_1", "Alice")
+      print(res.to_timestamped_text())
+
+- `extract_audio(video_path, output_path=None)` & `infer_audio_extension(...)` :
+  dissocie et enregistre la piste audio d'une vidéo avec déduction automatique
+  du format selon le codec ou le conteneur :
+
+      from audio_transcriber import extract_audio
+
+      audio_file = extract_audio("interview.mp4")
+      wav_file = extract_audio("interview.mp4", "sortie/piste.wav")
+
+- `SpeakerDiarizer` : attribution et persistance des profils vocaux
   (`save_profiles()`, `load_profiles()`, `rename_speaker()`, `clear_profiles()`).
 - `TranscriptionResult` & `TranscriptSegment` : structures de résultats et
-  méthodes d'export (`to_plain_text`, `to_timestamped_text`, `to_lrc_text`,
-  `to_dict`).
+  exports (`to_plain_text`, `to_timestamped_text`, `to_lrc_text`, `to_dict`).
 
 ---
 
 ## Exécuter les tests unitaires
 
-    # Lanceur unifié avec couverture et copie dans le presse-papiers
     python tools/run_tests_clip.py
-
-    # Sans toucher au presse-papiers
     python tools/run_tests_clip.py --no-clipboard

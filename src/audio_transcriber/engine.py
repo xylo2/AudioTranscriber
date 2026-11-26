@@ -8,6 +8,7 @@ License: GNU General Public License v3.0 (GPL-3.0-or-later)
 import os
 import threading
 from typing import Any, Callable, List, Optional
+from audio_transcriber.audio_extractor import extract_audio
 from audio_transcriber.config import TranscriberConfig
 from audio_transcriber.diarizer import SpeakerDiarizer
 from audio_transcriber.models import TranscriptSegment, TranscriptionResult
@@ -29,6 +30,14 @@ class AudioTranscriber:
             speaker_prefix=self.config.speaker_prefix,
             profiles_path=self.config.profiles_path,
         )
+
+    @staticmethod
+    def extract_audio(
+        video_path: str,
+        output_path: Optional[str] = None,
+    ) -> str:
+        """Extrait et enregistre la piste audio d'une vidéo sur disque."""
+        return extract_audio(video_path=video_path, output_path=output_path)
 
     def _sync_diarizer_config(self) -> SpeakerDiarizer:
         """Synchronise le diarizer si la configuration a évolué."""

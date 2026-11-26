@@ -2,6 +2,10 @@
 """
 Extraction et sauvegarde de la piste audio d'une vidéo (remux ou WAV).
 
+Ce module sonde le codec interne d'un conteneur vidéo via PyAV afin de
+privilégier un remux sans perte (`.m4a`, `.opus`, `.mp3`, `.flac`, `.ogg`,
+`.wma`), avec repli automatique en PCM `.wav` si le flux n'est pas remuxable.
+
 License: GNU General Public License v3.0 (GPL-3.0-or-later)
 """
 
@@ -44,6 +48,7 @@ def infer_audio_extension(
     ext: str = os.path.splitext(video_path)[-1].lower()
     return VIDEO_EXT_TO_AUDIO_EXT.get(ext, ".wav")
 def _probe_audio_codec(video_path: str) -> Optional[str]:
+    """Retourne le nom en minuscules du premier codec audio via PyAV, ou None."""
     try:
         import av  # type: ignore[import-not-found]
     except ImportError:
@@ -67,6 +72,7 @@ def _probe_audio_codec(video_path: str) -> Optional[str]:
 
 
 def _remux_audio_stream(video_path: str, target_path: str) -> bool:
+    """Copie les paquets audio sans ré-encodage vers target_path via PyAV."""
     try:
         import av  # type: ignore[import-not-found]
     except ImportError:
@@ -100,6 +106,7 @@ def _remux_audio_stream(video_path: str, target_path: str) -> bool:
                 except Exception:
                     pass
 def _write_pcm_wav(samples: np.ndarray, sample_rate: int, target_path: str) -> str:
+    """Encode une matrice float32 en fichier WAV PCM 16 bits signé sur disque."""
     if samples.size == 0 or sample_rate <= 0:
         raise ValueError("Aucune piste audio exploitable trouvée dans le média.")
     if samples.ndim == 1:

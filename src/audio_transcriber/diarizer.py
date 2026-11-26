@@ -2,6 +2,13 @@
 """
 Diarisation légère hors-ligne (stéréo + empreinte vocale spectrale NumPy).
 
+Ce module attribue automatiquement un libellé de locuteur à chaque segment
+transcrit sans dépendance neuronale lourde :
+- en stéréo bi-canal faiblement corrélé : séparation par énergie gauche/droite ;
+- en mono : extraction d'une empreinte spectrale multi-trames (16 bandes log
+  + taux de passage par zéro) et regroupement par similarité cosinus ;
+- persistance atomique des centroïdes vocaux au format JSON (`profiles_path`).
+
 License: GNU General Public License v3.0 (GPL-3.0-or-later)
 """
 
@@ -24,6 +31,7 @@ class SpeakerDiarizer:
         speaker_prefix: str = "Interlocuteur",
         profiles_path: str = "",
     ) -> None:
+        """Initialise le diarizer et charge les profils JSON s'ils existent."""
         self.max_speakers: int = max(1, int(max_speakers))
         self.similarity_threshold: float = float(similarity_threshold)
         self.speaker_prefix: str = speaker_prefix.strip() or "Interlocuteur"
@@ -39,7 +47,6 @@ class SpeakerDiarizer:
         self._labels.clear()
         self._centroids.clear()
         self._counts.clear()
-
     def rename_speaker(self, old_label: str, new_label: str) -> bool:
         """Renomme un profil vocal existant (ex. Interlocuteur_1 -> Alice)."""
         clean_new: str = new_label.strip()
@@ -52,6 +59,7 @@ class SpeakerDiarizer:
         if self.profiles_path:
             self.save_profiles(self.profiles_path)
         return True
+
     def save_profiles(self, file_path: Optional[str] = None) -> str:
         """Sauvegarde atomiquement les empreintes vocales au format JSON local."""
         target: str = (file_path or self.profiles_path).strip()
@@ -78,7 +86,6 @@ class SpeakerDiarizer:
                 os.remove(tmp_path)
             raise
         return abs_target
-
     def load_profiles(self, file_path: Optional[str] = None) -> int:
         """Charge les empreintes vocales depuis un fichier JSON existant."""
         target: str = (file_path or self.profiles_path).strip()
@@ -110,6 +117,7 @@ class SpeakerDiarizer:
             self._centroids.append(vec / norm)
             self._counts.append(max(1, int(item.get("count", 1))))
         return len(self._labels)
+
     def assign_speakers(
         self,
         file_path: str,
@@ -141,8 +149,8 @@ class SpeakerDiarizer:
         if self.profiles_path and self._labels:
             self.save_profiles(self.profiles_path)
         return speakers
-
     def _next_speaker_label(self, reserved: Optional[Set[str]] = None) -> str:
+        """Génère le prochain libellé libre (ex. Interlocuteur_1)."""
         idx: int = len(self._labels) + 1
         blocked: Set[str] = set(self._labels) | (reserved or set())
         candidate: str = f"{self.speaker_prefix}_{idx}"
@@ -157,6 +165,7 @@ class SpeakerDiarizer:
         max_match_pool: Optional[int] = None,
         excluded_labels: Optional[Set[str]] = None,
     ) -> str:
+        """Associe une empreinte à un centroïde proche ou crée un nouveau profil."""
         pool_limit: int = (
             len(self._centroids) if max_match_pool is None else max_match_pool
         )
@@ -209,6 +218,7 @@ class SpeakerDiarizer:
         sample_rate: int,
         segments: List[TranscriptSegment],
     ) -> List[str]:
+        """Attribue les locuteurs selon le canal stéréo dominant (gauche/droite)."""
         seen: List[str] = []
         total_len, _ = samples.shape
         existing_count: int = len(self._centroids)
@@ -292,6 +302,7 @@ class SpeakerDiarizer:
         sample_rate: int,
         segments: List[TranscriptSegment],
     ) -> List[str]:
+        """Attribue les locuteurs en mono par comparaison des empreintes spectrales."""
         speakers_order: List[str] = []
         total_len: int = mono.size
         for seg in segments:

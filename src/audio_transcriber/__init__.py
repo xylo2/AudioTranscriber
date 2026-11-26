@@ -2,6 +2,14 @@
 """
 Paquet principal de transcription audio et diarisation multi-interlocuteurs.
 
+Architecture des modules :
+- ``config`` : paramètres d'exécution (``TranscriberConfig``).
+- ``engine`` : moteur principal Whisper + diarisation (``AudioTranscriber``).
+- ``audio_loader`` : décodage PCM WAV, Audacity ``.aup3`` et PyAV.
+- ``audio_extractor`` : extraction/remux de pistes audio depuis une vidéo.
+- ``diarizer`` : séparation des voix et persistance JSON (``SpeakerDiarizer``).
+- ``models`` : segments horodatés et exports texte/LRC/JSON.
+
 License: GNU General Public License v3.0 (GPL-3.0-or-later)
 """
 
@@ -27,6 +35,7 @@ from audio_transcriber.models import TranscriptSegment, TranscriptionResult
 
 
 def _resolve_version() -> str:
+    """Lit la version depuis pyproject.toml ou les métadonnées installées."""
     pyproject_path: str = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..", "..", "pyproject.toml")
     )
@@ -45,20 +54,11 @@ def _resolve_version() -> str:
 
 
 __version__: str = _resolve_version()
-
 __all__ = [
-    "AudioTranscriber",
-    "CODEC_TO_EXTENSION",
-    "SpeakerDiarizer",
-    "SUPPORTED_AUDIO_EXTENSIONS",
-    "SUPPORTED_EXTENSIONS",
-    "SUPPORTED_VIDEO_EXTENSIONS",
-    "TranscriberConfig",
-    "TranscriptSegment",
-    "TranscriptionResult",
-    "VIDEO_EXT_TO_AUDIO_EXT",
-    "__version__",
-    "extract_audio",
-    "infer_audio_extension",
+    "AudioTranscriber", "CODEC_TO_EXTENSION", "SpeakerDiarizer",
+    "SUPPORTED_AUDIO_EXTENSIONS", "SUPPORTED_EXTENSIONS",
+    "SUPPORTED_VIDEO_EXTENSIONS", "TranscriberConfig",
+    "TranscriptSegment", "TranscriptionResult", "VIDEO_EXT_TO_AUDIO_EXT",
+    "__version__", "extract_audio", "infer_audio_extension",
     "is_supported_media",
 ]

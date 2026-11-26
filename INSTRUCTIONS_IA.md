@@ -1,42 +1,28 @@
-# Instructions de génération de code (`audio_transcriber` & `watch_clipboard`)
+# Instructions de génération de code (`ChromeAI` & `watch_clipboard`)
 
-Respecte **impérativement** ces règles afin que `watch_clipboard` assemble les fichiers sans troncature ni blocage.
+Respecte **impérativement** ces règles pour un assemblage fiable sans troncature ni blocage.
 
----
+## 0. Communication & collaboration
+* **Explications légères** : va directement au code ou au diagnostic court, sans théorie superflue.
+* **Demande explicite** : indique clairement quand j'ai besoin de te fournir une trace, un `git diff` ou d'exécuter une commande / recharger l'extension.
+* **Relecture des `git diff`** : relis systématiquement tout `git diff` fourni pour détecter toute régression ou altération avant de valider.
 
-## 1. Balises d'en-tête & stabilité du découpage
+## 1. Format & limites des blocs
+* **Balise en 1re ligne à l'intérieur du bloc** :
+  * Fichier complet (≤ 65 lignes) : `=== FILE: chemin/relatif/fichier.ext ===`
+  * Fichier long (> 65 lignes, `N` fixe calculé avant `1/N`) : `=== FILE_PART: chemin/relatif/fichier.ext | 1/N ===`
+* **Chemins & clôture** : chemins relatifs à la racine sans préfixe ni `..` ; termine chaque livraison par `=== END_FILE ===` hors bloc.
+* **Anti-virtualisation** : **≤ 65 lignes/bloc** (viser 45–62), **≤ 88 car./ligne**, **max 2 à 3 blocs/réponse** (annonce la suite et attends « Suite » si besoin).
+* **Zéro ellipse** : toujours livrer le code intégral de chaque bloc (`...` ou diffs interdits). Fournis `1/N` à `N/N` à la création, puis uniquement les parties modifiées si `N` ne change pas.
 
-* **Placement obligatoire** : la balise `=== FILE: ... ===` ou `=== FILE_PART: ... ===` doit toujours être placée **à l'intérieur** du bloc de code (en première ligne juste après les trois accents graves), jamais à l'extérieur.
-* **Fichier complet (≤ 65 lignes)** :
-  `=== FILE: chemin/relatif/du/fichier.py ===`
-* **Fichier long (> 65 lignes), découpé en `N` parties** :
-  `=== FILE_PART: chemin/relatif/du/fichier.py | 1/N ===`
-* Utilise uniquement des **chemins relatifs à la racine du dépôt** avec `/` (sans préfixer par le nom du dossier racine).
-* **Stabilité de `N`** : calcule le nombre total `N` avant la partie `1/N` et ne le modifie jamais en cours de livraison.
-* **Zéro note après un bloc** : n'écris aucun commentaire juste sous la fermeture d'un bloc de code.
+## 2. Pièges d'affichage web & confidentialité
+* **Triples backticks** : construis-les dynamiquement (`chr(96) * 3` en Python, `String.fromCharCode(96).repeat(3)` en JS), jamais en littéral dans le code.
+* **URLs & `tools/fix_urls.py`** : concatène les URLs avec sous-domaine dans le code (`"sub." + "domain.tld"`). Le script `tools/fix_urls.py` répare les URLs tronquées par le web et purge `iaexport` / `verification_liens.txt`.
+* **Crochets & LaTeX** : évite les index numériques entre crochets (préfère le déballage, `next(iter(...))` ou `.at(0)`) ainsi que `$` ou `\` non échappés.
+* **Données abstraites** : aucun nom, téléphone, e-mail ou chemin réel (`Utilisateur_A`, `06 00 00 00 01`, `test1@exemple.invalid`).
 
----
-
-## 2. Limites anti-virtualisation & anti-blocage
-
-* **≤ 65 lignes par bloc** (viser 45–62 lignes) et **≤ 88 caractères par ligne**.
-* **Maximum 2 à 3 blocs `FILE_PART` par réponse** pour éviter tout coupe-circuit.
-* Coupe toujours proprement entre deux fonctions, méthodes ou paragraphes.
-* **Zéro ellipse** : `# ... reste du code ...` ou `...` strictement interdits.
-
----
-
-## 3. Vigilance d'affichage & confidentialité
-
-* **Triples backticks** : construis-les via `chr(96) * 3` en Python plutôt qu'en littéral.
-* **URLs et sous-domaines** : reconstruis dynamiquement les URLs en Python (`_u("sub", "domain.tld")`).
-* **Crochets d'indexation & Markdown** : préfère le déballage (`a, b = pair`) ou `next(iter(seq))` aux index `[0]`, `[1]`, et écris `## Version x.y.z` sans crochets dans `CHANGELOG.md`.
-* **Confidentialité & Licence** : utilise uniquement des données abstraites (`Interlocuteur_1`, `test.wav`) et applique l'en-tête **GNU GPL v3** sur chaque fichier source.
-
----
-
-## 4. Architecture, typage & tests
-
-* Modules Python sous ~250 lignes, annotés avec `typing`.
-* Dépendances légères (MIT / BSD / Apache 2.0 compatibles GNU GPL v3) avec imports paresseux.
-* Couvre chaque module par des tests unitaires dans `tests/` (`unittest` + `tempfile.mkdtemp`), validés sans warning.
+## 3. Architecture, licence & qualité
+* **Licence GNU GPL v3** : en-tête **GNU GPL v3** obligatoire sur chaque fichier source ; bibliothèques compatibles uniquement (MIT, BSD, Apache 2.0, stdlib) en import paresseux.
+* **Modularité & typage** : modules légers (< ~250 lignes), extraction systématique des classes pertinentes dans des fichiers dédiés, typage `typing` et validation `os.path.realpath`.
+* **Tests & couverture (`tools/run_tests_clip.py`)** : tout projet inclut `tools/run_tests_clip.py` (`unittest` + `tempfile.mkdtemp` / `node:test`) qui échoue sur tout warning Python, mesure la couverture (`--report-file`, `--coverage-file`) et copie les erreurs compactées au presse-papiers (`--no-clipboard` pour désactiver).
+* **Langues & docstrings** : identifiants et fichiers en **anglais** ; commentaires, docstrings et commits en **français**. **Chaque méthode et fonction doit obligatoirement avoir une docstring ou un commentaire en français.**

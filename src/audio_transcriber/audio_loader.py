@@ -2,6 +2,10 @@
 """
 Chargement et décodage de flux audio PCM (WAV, Audacity .aup3, PyAV).
 
+Ce module unifie la lecture de tous les médias supportés sous forme de
+matrices NumPy ``float32`` 2D ``(échantillons, canaux)`` normalisées dans
+``[-1.0, 1.0]``, accompagnées de leur fréquence d'échantillonnage.
+
 License: GNU General Public License v3.0 (GPL-3.0-or-later)
 """
 
@@ -49,6 +53,7 @@ class AudioSignalLoader:
         return AudioSignalLoader._load_via_av(file_path)
     @staticmethod
     def _load_wav(file_path: str) -> Tuple[np.ndarray, int]:
+        """Décode un fichier WAV PCM 8, 16, 24 ou 32 bits en matrice float32."""
         try:
             with wave.open(file_path, "rb") as wf:
                 channels: int = max(1, wf.getnchannels())
@@ -77,11 +82,12 @@ class AudioSignalLoader:
 
     @staticmethod
     def _extract_aup3_sample_rate(cur: sqlite3.Cursor) -> int:
+        """Extrait le taux d'échantillonnage XML de la table project Audacity."""
         try:
             cur.execute("SELECT dict FROM project LIMIT 1")
             row = cur.fetchone()
-            if row and row[0]:
-                first_col = row[0]
+            first_col = next(iter(row), None) if row else None
+            if first_col:
                 blob_txt: str = (
                     first_col.decode("utf-8", errors="ignore")
                     if isinstance(first_col, (bytes, bytearray))
@@ -97,6 +103,7 @@ class AudioSignalLoader:
         return 44100
     @staticmethod
     def _load_aup3(file_path: str) -> Tuple[np.ndarray, int]:
+        """Concatène les blocs PCM float32 d'un projet SQLite Audacity .aup3."""
         conn: sqlite3.Connection | None = None
         try:
             conn = sqlite3.connect(file_path)
@@ -124,6 +131,7 @@ class AudioSignalLoader:
 
     @staticmethod
     def _load_via_av(file_path: str) -> Tuple[np.ndarray, int]:
+        """Décode la piste audio de tout conteneur média pris en charge par PyAV."""
         try:
             import av  # type: ignore[import-not-found]
         except ImportError:

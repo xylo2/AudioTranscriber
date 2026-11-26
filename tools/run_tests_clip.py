@@ -23,6 +23,7 @@ EXC_PREFIXES = (
 
 
 def copy_to_clipboard(text: str) -> bool:
+    """Copie une chaîne UTF-8 dans le presse-papiers système."""
     if not text:
         return False
     if os.name == "nt":
@@ -43,6 +44,7 @@ def copy_to_clipboard(text: str) -> bool:
 
 
 def extract_warnings_and_console_errors(raw_output: str) -> str:
+    """Extrait les avertissements Python uniques de la sortie des tests."""
     warn_re = re.compile(
         r"(?:ResourceWarning|DeprecationWarning|RuntimeWarning|UserWarning|SyntaxWarning)\s*:.*"
     )
@@ -55,6 +57,7 @@ def extract_warnings_and_console_errors(raw_output: str) -> str:
             found.append(s)
     return "\n".join(found)
 def _parse_failure_block(blk: List[str], root_prefix: str) -> Tuple[str, str]:
+    """Compacte un bloc FAIL/ERROR unittest en signature et ligne lisible."""
     header: str = next(iter(blk))
     err_line: str = next(
         (ln.strip() for ln in reversed(blk) if ln.strip().startswith(EXC_PREFIXES)),
@@ -76,6 +79,7 @@ def _parse_failure_block(blk: List[str], root_prefix: str) -> Tuple[str, str]:
 
 
 def compact_error_report(raw_output: str) -> str:
+    """Déduplique et résume les erreurs unittest pour le presse-papiers."""
     sections: List[str] = re.split(r"(?m)^={60,}\s*$", raw_output)
     out: List[str] = []
     seen: Set[str] = set()
@@ -102,9 +106,8 @@ def compact_error_report(raw_output: str) -> str:
     if summary_line:
         out.append(summary_line)
     return "\n".join(out).strip() or raw_output[-2500:].strip()
-
-
 def extract_coverage_section(raw_output: str) -> str:
+    """Extrait le résumé de couverture et les lignes manquantes du rapport."""
     lines: List[str] = raw_output.splitlines()
     global_pcts: List[float] = []
     incomplete_rows: List[str] = []
@@ -144,6 +147,7 @@ def extract_coverage_section(raw_output: str) -> str:
 
 
 def _get_arg(argv: List[str], flag: str) -> Optional[str]:
+    """Retourne la valeur associée à un drapeau CLI s'il est présent."""
     if flag in argv:
         idx: int = argv.index(flag)
         if idx + 1 < len(argv):
@@ -152,6 +156,10 @@ def _get_arg(argv: List[str], flag: str) -> Optional[str]:
 
 
 def main() -> int:
+    """Purge les artefacts, exécute les tests et copie le rapport au presse-papiers."""
+    from tools.fix_urls import repair_tools_urls
+
+    repair_tools_urls()
     use_clip: bool = "--no-clipboard" not in sys.argv
     report_file: Optional[str] = _get_arg(sys.argv, "--report-file")
     coverage_file: Optional[str] = _get_arg(sys.argv, "--coverage-file")

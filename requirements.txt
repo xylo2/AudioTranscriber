@@ -1,0 +1,4 @@
+faster-whisper>=1.0.3
+numpy>=1.26.0
+build>=1.2.1
+coverage>=7.6.0

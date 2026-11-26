@@ -1,0 +1,10 @@
+.watch_clipboard/
+.coverage
+.coverage.*
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/

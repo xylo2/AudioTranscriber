@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "audio-transcriber"
+version = "0.1.0"
+description = "Librairie locale de transcription audio et diarisation multi-interlocuteurs."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "GPL-3.0-or-later" }
+dependencies = [
+    "faster-whisper>=1.0.3",
+    "numpy>=1.26.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "coverage>=7.6.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
